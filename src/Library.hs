@@ -1,8 +1,6 @@
 --Marzocca, Damian
 module Library where
 import PdePreludat
-import Foreign (lengthArray0)
-import GHC.Num (Num)
 
 -- Punto 1
 data Aventurero = UnAventurero{
@@ -20,15 +18,12 @@ marios :: Aventurero
 marios = UnAventurero "Marios" 40 80 True conformista
 
 link :: Aventurero
-link = UnAventurero "Link" 20 30 False (lightPacker 40)
+link = UnAventurero "Link" 20 30 False (lightPacker 25)
+
+alf :: Aventurero
+alf = UnAventurero "Alf" 6 50 False valiente
 
 type Encuentro = Aventurero -> Aventurero
-
-encuentroA:: Encuentro
-encuentroA aventurero = aventurero{coraje=False}
-
-encuentroB:: Encuentro
-encuentroB aventurero = aventurero{salud=10}
 
 --Criterios de Eleccion
 type CriteriodeSeleccion = Aventurero -> Bool
@@ -59,7 +54,7 @@ cargaTotalPar  = sum. filter even .map carga
 
 --Punto 3
 encuentroBase :: Encuentro 
-encuentroBase  = reducirCarga 1
+encuentroBase  = modificarCarga (-1)
 
 encuentroCurandero :: Encuentro
 encuentroCurandero = modificarSalud 20. cargaALaMitad . encuentroBase 
@@ -68,16 +63,27 @@ encuentroInspirador :: Encuentro
 encuentroInspirador aventurero = (modificarSalud 10 . encuentroBase) (aventurero {coraje = True})
 
 encuentroEmbaucador :: Encuentro
-encuentroEmbaucador aventurero = (modificarSalud (-50). encuentroBase)(aventurero {coraje = False, criterio = lightPacker 10})
+encuentroEmbaucador aventurero = (modificarSalud (-50). modificarCarga 10. encuentroBase)(aventurero {coraje = False, criterio = lightPacker 10})
 
 modificarSalud::Number -> Aventurero -> Aventurero
 modificarSalud n aventurero = aventurero {salud = max (min (salud aventurero * (100 + n)/100) 100) 0}
 
 
-reducirCarga :: Number -> Aventurero -> Aventurero
-reducirCarga n aventurero = aventurero {carga = carga aventurero - n}
+modificarCarga :: Number -> Aventurero -> Aventurero
+modificarCarga n aventurero = aventurero {carga = carga aventurero + n}
 
 cargaALaMitad :: Aventurero -> Aventurero
-cargaALaMitad aventurero = reducirCarga (carga aventurero / 2) aventurero
+cargaALaMitad aventurero = modificarCarga (carga aventurero / (-2)) aventurero
 
 --Punto 4
+listaEncuentros :: [Encuentro]
+listaEncuentros = [encuentroCurandero, encuentroEmbaucador,encuentroInspirador]
+
+enfrentarEncuentros :: Aventurero->[Encuentro]->[Encuentro]
+enfrentarEncuentros _ [] = []
+enfrentarEncuentros aventurero (encuentro:resto)
+    |satisfaceCriterio aventurero encuentro = encuentro:enfrentarEncuentros (encuentro aventurero) resto
+    |otherwise = [encuentro]
+
+satisfaceCriterio :: Aventurero -> Encuentro -> Bool
+satisfaceCriterio aventurero encuentro = criterio aventurero (encuentro aventurero)
