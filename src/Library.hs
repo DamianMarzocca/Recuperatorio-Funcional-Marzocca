@@ -69,6 +69,7 @@ modificarSalud::Number -> Aventurero -> Aventurero
 modificarSalud n aventurero = aventurero {salud = max (min (salud aventurero * (100 + n)/100) 100) 0}
 
 
+
 modificarCarga :: Number -> Aventurero -> Aventurero
 modificarCarga n aventurero = aventurero {carga = carga aventurero + n}
 
@@ -77,13 +78,13 @@ cargaALaMitad aventurero = modificarCarga (carga aventurero / (-2)) aventurero
 
 --Punto 4
 listaEncuentros :: [Encuentro]
-listaEncuentros = [encuentroCurandero, encuentroEmbaucador,encuentroInspirador]
+listaEncuentros = [encuentroCurandero,encuentroInspirador, encuentroEmbaucador,encuentroCurandero]
 
 enfrentarEncuentros :: Aventurero->[Encuentro]->[Encuentro]
 enfrentarEncuentros _ [] = []
 enfrentarEncuentros aventurero (encuentro:resto)
     |satisfaceCriterio aventurero encuentro = encuentro:enfrentarEncuentros (encuentro aventurero) resto
-    |otherwise = [encuentro]
+    |otherwise = []
 
 satisfaceCriterio :: Aventurero -> Encuentro -> Bool
 satisfaceCriterio aventurero encuentro = criterio aventurero (encuentro aventurero)
